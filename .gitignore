@@ -1,0 +1,11 @@
+*/.ipynb_checkpoints/
+*.gz
+*.aux
+*.log
+*.out
+.ipynb*
+*.pyc
+tags
+.idea/*
+*.swp
+.DS_Store
