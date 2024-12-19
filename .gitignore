@@ -9,3 +9,6 @@ tags
 .idea/*
 *.swp
 .DS_Store
+
+# yolos
+yolov8n.pt

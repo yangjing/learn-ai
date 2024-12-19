@@ -1,3 +1,14 @@
+[project]
+name = "learn-ai"
+version = "0.0.1"
+description = "杨景的 AI 学习记录"
+authors = [{ name = "Yang Jing", email = "yang.xunjing@qq.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.12"
+
+[project.urls]
+"Homepage" = "https://github.com/yangjing/learn-ai"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -42,7 +53,7 @@ target-version = "py312"
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
 select = ["E4", "E7", "E9", "F"]
-ignore = []
+ignore = ["E741"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
