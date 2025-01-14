@@ -2,29 +2,14 @@ import copy
 import time
 import torch
 from torch import nn, optim
-import torchvision
-import torchvision.transforms as transforms
-from torch.utils.data import random_split, DataLoader
-from lenet import LeNet, DATA_DIR, DEVICE
 import matplotlib.pyplot as plt
-
-
-def load_datas():
-  # 加载 FusionMNIST 数据集
-  transform = transforms.Compose([transforms.Resize(size=28), transforms.ToTensor()])
-  train_data = torchvision.datasets.FashionMNIST(
-    root=DATA_DIR, train=True, download=True, transform=transform
-  )
-  train_num = int(0.8 * len(train_data))
-  train_data, val_data = random_split(train_data, [train_num, len(train_data) - train_num])
-  train_loader = DataLoader(train_data, batch_size=64, shuffle=True, num_workers=2)
-  val_loader = DataLoader(val_data, batch_size=64, shuffle=True, num_workers=2)
-
-  return train_loader, val_loader
+from . import DEVICE
 
 
 # 定义训练函数
-def train(model, train_loader, val_loader, criterion, optimizer, epochs=5):
+def train(
+  model, train_loader, val_loader, criterion, optimizer, epochs=5, DEVICE: torch.device = DEVICE
+):
   # 复制当前模型的参数
   best_model_wts = copy.deepcopy(model.state_dict())
   best_acc = 0
@@ -90,7 +75,7 @@ def train(model, train_loader, val_loader, criterion, optimizer, epochs=5):
 
   # 保存模型
   model.load_state_dict(best_model_wts)
-  torch.save(model.state_dict(), "lenet.pth")
+  torch.save(model.state_dict(), "alexnet.pth")
 
   print("Finished Training")
 
@@ -122,17 +107,3 @@ def matplot_acc_loss(res):
   plt.ylabel("acc")
 
   plt.show()
-
-
-if __name__ == "__main__":
-  train_loader, val_loader = load_datas()
-
-  # 初始化网络、损失函数和优化器
-  net = LeNet().to(DEVICE)
-  criterion = nn.CrossEntropyLoss()
-  optimizer = optim.Adam(net.parameters(), lr=0.001)
-
-  # 运行训练和测试
-  train_res = train(net, train_loader, val_loader, criterion, optimizer, epochs=10)
-
-  matplot_acc_loss(train_res)

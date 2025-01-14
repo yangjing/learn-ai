@@ -1,30 +1,45 @@
+# 训练&测试: 猫、狗
 import copy
 import time
 import torch
 from torch import nn, optim
-import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import random_split, DataLoader
-from lenet import LeNet, DATA_DIR, DEVICE
+from torchvision.datasets import ImageFolder
+
+from pytorch.cnn.resnet.resnet import ResNet18
+from pytorch.util import DEVICE, DATA_DIR
 import matplotlib.pyplot as plt
 
 
 def load_datas():
   # 加载 FusionMNIST 数据集
-  transform = transforms.Compose([transforms.Resize(size=28), transforms.ToTensor()])
-  train_data = torchvision.datasets.FashionMNIST(
-    root=DATA_DIR, train=True, download=True, transform=transform
+  transform = transforms.Compose(
+    [
+      transforms.Resize(size=(224, 224)),
+      transforms.ToTensor(),
+      transforms.Normalize(
+        [0.16207108, 0.15101928, 0.13847153], [0.05800501, 0.05212834, 0.04776142]
+      ),
+    ]
   )
+  # 加载数据集
+  train_data = ImageFolder(DATA_DIR / "cat_dog" / "train", transform=transform)
   train_num = int(0.8 * len(train_data))
   train_data, val_data = random_split(train_data, [train_num, len(train_data) - train_num])
-  train_loader = DataLoader(train_data, batch_size=64, shuffle=True, num_workers=2)
-  val_loader = DataLoader(val_data, batch_size=64, shuffle=True, num_workers=2)
+  train_loader = DataLoader(train_data, batch_size=128, shuffle=True, num_workers=2)
+  val_loader = DataLoader(val_data, batch_size=128, shuffle=True, num_workers=2)
 
-  return train_loader, val_loader
+  test_data = ImageFolder(DATA_DIR / "cat_dog" / "test", transform=transform)
+  test_loader = DataLoader(test_data, batch_size=128, shuffle=True, num_workers=2)
+
+  return train_loader, val_loader, test_loader
 
 
 # 定义训练函数
-def train(model, train_loader, val_loader, criterion, optimizer, epochs=5):
+def train(
+  model, train_loader, val_loader, criterion, optimizer, epochs=5, model_file: str = "resnet.pth"
+):
   # 复制当前模型的参数
   best_model_wts = copy.deepcopy(model.state_dict())
   best_acc = 0
@@ -90,7 +105,7 @@ def train(model, train_loader, val_loader, criterion, optimizer, epochs=5):
 
   # 保存模型
   model.load_state_dict(best_model_wts)
-  torch.save(model.state_dict(), "lenet.pth")
+  torch.save(model.state_dict(), model_file)
 
   print("Finished Training")
 
@@ -124,15 +139,46 @@ def matplot_acc_loss(res):
   plt.show()
 
 
-if __name__ == "__main__":
-  train_loader, val_loader = load_datas()
+def test(model: ResNet18, test_loader):
+  test_loss = 0.0
+  test_acc = 0.0
+  criterion = nn.CrossEntropyLoss()
 
-  # 初始化网络、损失函数和优化器
-  net = LeNet().to(DEVICE)
+  with torch.no_grad():
+    start_time = time.time()
+    for batch_x, batch_y in test_loader:
+      batch_x = batch_x.to(DEVICE)
+      batch_y = batch_y.to(DEVICE)
+
+      outputs = model(batch_x)
+      pred_y = torch.argmax(outputs, dim=1)  # 找到预测概率最大标签的索引下标
+      loss = criterion(outputs, batch_y)
+
+      test_loss += loss.item()
+      test_acc += torch.sum(pred_y == batch_y).cpu()
+
+  test_loss /= len(test_loader)
+  test_acc /= len(test_loader.dataset)
+  end_time = time.time()  # 记录结束时间
+  epoch_time = end_time - start_time  # 计算耗时
+  print(f"Time: {epoch_time:.3f}s - Test Loss: {test_loss:.3f} - Test Acc: {test_acc:.3f}")
+
+
+if __name__ == "__main__":
+  train_loader, val_loader, test_loader = load_datas()
+  model_file = "resnet-cat_dog.pth"
+
+  # 运行训练
+  net = ResNet18(in_channels=3, num_classes=2).to(DEVICE)
   criterion = nn.CrossEntropyLoss()
   optimizer = optim.Adam(net.parameters(), lr=0.001)
-
-  # 运行训练和测试
-  train_res = train(net, train_loader, val_loader, criterion, optimizer, epochs=10)
-
+  train_res = train(
+    net, train_loader, val_loader, criterion, optimizer, epochs=10, model_file=model_file
+  )
   matplot_acc_loss(train_res)
+
+  # 运行测试
+  model = ResNet18(in_channels=3, num_classes=2).to(DEVICE)
+  model.load_state_dict(torch.load(model_file, weights_only=True))
+  model.eval()
+  test(model, test_loader)

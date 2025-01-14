@@ -133,6 +133,6 @@ if __name__ == "__main__":
   optimizer = optim.Adam(net.parameters(), lr=0.001)
 
   # 运行训练和测试
-  train_process = train(net, train_loader, val_loader, criterion, optimizer, epochs=5)
+  train_res = train(net, train_loader, val_loader, criterion, optimizer, epochs=5)
 
-  matplot_acc_loss(train_process)
+  matplot_acc_loss(train_res)

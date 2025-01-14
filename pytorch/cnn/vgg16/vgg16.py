@@ -58,14 +58,25 @@ class VGG16(nn.Module):
     )
     self.classifier = nn.Sequential(
       nn.Flatten(),  # 展平张量，类似于 torch.flatten(x, 1)
-      nn.Linear(512 * 7 * 7, 4096),
+      nn.Linear(512 * 7 * 7, 256),
       nn.ReLU(),
-      # nn.Dropout(),
-      nn.Linear(4096, 4096),
+      nn.Dropout(p=0.2),
+      nn.Linear(256, 128),
       nn.ReLU(),
-      # nn.Dropout(),
-      nn.Linear(4096, num_classes),
+      nn.Dropout(p=0.2),
+      nn.Linear(128, num_classes),
     )
+
+    # 权重初始化
+    for m in self.modules():
+      if isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight, nonlinearity="relu")
+        if m.bias is not None:
+          nn.init.constant_(m.bias, 0)
+      elif isinstance(m, nn.Linear):
+        nn.init.normal_(m.weight, mean=0, std=0.01)
+        if m.bias is not None:
+          nn.init.constant_(m.bias, 0)
 
   def forward(self, x: torch.Tensor) -> torch.Tensor:
     # 验证输入张量形状
