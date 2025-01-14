@@ -1,12 +1,20 @@
 # numpy==1.26.4
-matplotlib==3.9.4
+matplotlib==3.10.0
 torch==2.5.1
 torchvision==0.20.1
 torchaudio==2.5.1
+torchsummary==1.5.1
+pycocotools==2.0.8
 jupyterlab==4.3.4
 opencv-python==4.10.0.84
-ultralytics==8.3.55
+ultralytics==8.3.57
 duckdb==1.1.3
 nnfs==0.5.1
 tensorflow==2.18.0
+kaggle==1.6.17
 huggingface_hub
+
+# Modern Computer Vision for Pytorch 2ed
+face-alignment==1.4.1
+torch_snippets==0.550
+selectivesearch==0.4
