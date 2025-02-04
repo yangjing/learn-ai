@@ -1,4 +1,5 @@
-# numpy==1.26.4
+numpy==1.26.4
+pandas==2.2.3
 matplotlib==3.10.0
 torch==2.5.1
 torchvision==0.20.1
@@ -11,8 +12,11 @@ ultralytics==8.3.57
 duckdb==1.1.3
 nnfs==0.5.1
 tensorflow==2.18.0
+tensorboard==2.18.0
+tensorboardX==2.6.2.2
 kaggle==1.6.17
-huggingface_hub
+tqdm==4.67.1
+huggingface_hub==0.27.1
 
 # Modern Computer Vision for Pytorch 2ed
 face-alignment==1.4.1

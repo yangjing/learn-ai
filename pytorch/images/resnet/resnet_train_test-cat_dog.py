@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import random_split, DataLoader
 from torchvision.datasets import ImageFolder
 
-from pytorch.cnn.resnet.resnet import ResNet18
+from pytorch.images.resnet.resnet import ResNet18
 from pytorch.util import DEVICE, DATA_DIR
 import matplotlib.pyplot as plt
 
@@ -38,7 +38,7 @@ def load_datas():
 
 # 定义训练函数
 def train(
-  model, train_loader, val_loader, criterion, optimizer, epochs=5, model_file: str = "resnet.pth"
+  model, train_loader, val_loader, loss_fn, optimizer, epochs=5, model_file: str = "model.pth"
 ):
   # 复制当前模型的参数
   best_model_wts = copy.deepcopy(model.state_dict())
@@ -61,7 +61,7 @@ def train(
 
       outputs = model(batch_x)
       pred_y = torch.argmax(outputs, dim=1)  # 找到预测概率最大标签的索引下标
-      loss = criterion(outputs, batch_y)
+      loss = loss_fn(outputs, batch_y)
 
       loss.backward()  # 反向传播
       optimizer.step()  # 更新参数
@@ -83,7 +83,7 @@ def train(
 
       outputs = model(batch_x)
       pred_y = torch.argmax(outputs, dim=1)  # 找到预测概率最大标签的索引下标
-      loss = criterion(outputs, batch_y)
+      loss = loss_fn(outputs, batch_y)
 
       val_loss += loss.item()
       val_acc += torch.sum(pred_y == batch_y).cpu()
@@ -106,8 +106,6 @@ def train(
   # 保存模型
   model.load_state_dict(best_model_wts)
   torch.save(model.state_dict(), model_file)
-
-  print("Finished Training")
 
   train_res = {
     "epoch": range(1, epochs + 1),

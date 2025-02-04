@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import random_split, DataLoader
 from torchvision.datasets import ImageFolder
 
-from pytorch.cnn.resnet.resnet import ResNet18
+from pytorch.images.resnet.resnet import ResNet18
 from pytorch.util import DEVICE, DATA_DIR
 import matplotlib.pyplot as plt
 
