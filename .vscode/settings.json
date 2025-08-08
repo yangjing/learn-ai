@@ -5,4 +5,7 @@
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
   "notebook.formatOnSave.enabled": true,
+  "cSpell.words": [
+    "qwen"
+  ],
 }

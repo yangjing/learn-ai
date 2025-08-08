@@ -5,10 +5,40 @@ description = "杨景的 AI 学习记录"
 authors = [{ name = "Yang Jing", email = "yang.xunjing@qq.com" }]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "accelerate>=1.10.0",
+  "jupyterlab>=4.4.5",
+  "langchain-deepseek>=0.1.4",
+  "langchain-openai>=0.3.28",
+  "langgraph>=0.6.4",
+  "matplotlib>=3.10.5",
+  "numpy>=2.3.2",
+  "opencv-python>=4.11.0.86",
+  "pandas>=2.3.1",
+  "pgvector>=0.4.1",
+  "polars>=1.32.2",
+  "psycopg[binary,pool]>=3.2.9",
+  "sqlmodel>=0.0.24",
+  "tensorboard>=2.20.0",
+  "torch>=2.8.0",
+  "torchaudio>=2.8.0",
+  "torchsummary>=1.5.1",
+  "torchvision>=0.23.0",
+  "transformers>=4.55.0",
+  "ultralytics>=8.3.176",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/yangjing/learn-ai"
+
+[dependency-groups]
+dev = [
+  "hf-transfer>=0.1.9",
+  "huggingface-hub>=0.34.3",
+  "pytest>=8.4.1",
+  "tqdm>=4.67.1",
+]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -42,7 +72,7 @@ exclude = [
 ]
 
 # Same as Black.
-line-length = 100
+line-length = 120
 indent-width = 2
 
 # Assume Python 3.12
