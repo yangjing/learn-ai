@@ -13,6 +13,7 @@ tags
 .DS_Store
 pytorch/data/
 .venv/
+.env
 
 # yolos
 yolo/imgs/hjfruit

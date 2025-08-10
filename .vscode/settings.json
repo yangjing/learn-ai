@@ -6,6 +6,7 @@
   },
   "notebook.formatOnSave.enabled": true,
   "cSpell.words": [
+    "checkpointer",
     "qwen"
   ],
 }
