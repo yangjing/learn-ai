@@ -7,6 +7,17 @@
   "notebook.formatOnSave.enabled": true,
   "cSpell.words": [
     "checkpointer",
-    "qwen"
+    "deepseek",
+    "dotenv",
+    "langchain",
+    "qwen",
+    "siliconflow"
+  ],
+  "python-envs.pythonProjects": [
+    {
+      "path": "./.venv/bin/python",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    }
   ],
 }

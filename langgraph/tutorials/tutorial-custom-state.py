@@ -1,8 +1,9 @@
+import os
 from typing import Annotated
+from langchain_openai import ChatOpenAI
 from typing_extensions import TypedDict
 from dotenv import load_dotenv
 
-from langchain.chat_models import init_chat_model
 from langchain_tavily import TavilySearch
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import InjectedToolCallId, tool
@@ -17,7 +18,7 @@ load_dotenv()
 
 class State(TypedDict):
   messages: Annotated[list, add_messages]
-  """messages: 对话历史，使用 add_messages 注解自动合并消息"""
+  """messages: 对话历史，使用 add_messages 注解自动合并消息f"""
 
   name: str
   """存储查询的人名"""
@@ -56,7 +57,15 @@ def human_assistance(name: str, birthday: str, tool_call_id: Annotated[str, Inje
   return Command(update=state_update)
 
 
-llm = init_chat_model('deepseek:deepseek-chat')
+# from langchain.chat_models import init_chat_model
+
+# llm = init_chat_model('deepseek:deepseek-chat')
+llm = ChatOpenAI(
+  model='Qwen/Qwen3-30B-A3B-Instruct-2507',
+  openai_api_key=os.environ['SILICONFLOW_API_KEY'],
+  openai_api_base='https://api.siliconflow.cn/v1',
+  streaming=True,
+)
 search_tool = TavilySearch(max_results=2)
 tools = [search_tool, human_assistance]
 llm_with_tools = llm.bind_tools(tools)

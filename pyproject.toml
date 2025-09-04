@@ -40,6 +40,7 @@ dependencies = [
 dev = [
   "hf-transfer>=0.1.9",
   "huggingface-hub>=0.34.3",
+  "langgraph-cli[inmem]>=0.3.6",
   "pytest>=8.4.1",
   "tqdm>=4.67.1",
 ]
