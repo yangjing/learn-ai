@@ -47,6 +47,7 @@ opt-level = 3
 dotenvy = "0.15"
 mdbook = "0.4"
 mdbook-mermaid = "0.15"
+strum = { version = "0.27", features = ["derive"] }
 # -- Error
 anyhow = "1"
 thiserror = "2"

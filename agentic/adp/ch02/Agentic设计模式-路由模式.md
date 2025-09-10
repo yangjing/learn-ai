@@ -1,6 +1,6 @@
 # Agentic 设计模式 - 路由模式（Routing Pattern）
 
-_本文示例代码见：[routing-langgraph.rs](https://github.com/yangjing/learn-ai/tree/main/agentic/adp/ch02/routing-langgraph.rs)，[ch02-routing.rs](https://github.com/yangjing/learn-ai/tree/main/agentic/adp/examples/ch02-routing.rs)_
+_本文示例代码见：[routing-langgraph.py](https://github.com/yangjing/learn-ai/blob/main/agentic/adp/ch02/routing-langgraph.py)，[ch02-routing.rs](https://github.com/yangjing/learn-ai/tree/main/agentic/adp/examples/ch02-routing.rs)_
 
 ## 路由模式概述
 
@@ -204,7 +204,7 @@ $ uv run -m agentic.adp.ch02.routing-langgraph
 
 ## 代码示例（Rust: rig, graph-flow）
 
-这里给出 Rust 版本的实现，相比 Python 版本添加了传话管理功能，并额外具有以下优势：
+这里给出 Rust 版本的实现，相比 Python 版本添加了会话管理功能，并额外具有以下优势：
 
 1. 类型安全 - Rust 的类型系统确保路由决策和状态转换在编译时就能得到验证
 2. 内存安全 - Rust 的所有权模型可以防止并发路由场景中的内存泄漏和数据竞争
@@ -212,7 +212,7 @@ $ uv run -m agentic.adp.ch02.routing-langgraph
 4. 会话管理 - 内置的会话存储功能可以在路由决策过程中维护状态（注：LangGraph 也支持会话管理）
 5. 异步支持 - 一流的异步支持可以高效处理并发路由请求
 
-下面的代码展示了这些优势（为简洁起见省略了导入语句）：
+_为简洁起见省略了导入语句：_
 
 ```rust
 /// 协调器路由任务
@@ -230,17 +230,13 @@ impl CoordinatorRouterTask {
 impl Task for CoordinatorRouterTask {
   async fn run(&self, context: Context) -> graph_flow::Result<TaskResult> {
     let request: String = context.get_sync("request").unwrap_or_default();
-
     let response = self
       .agent
       .prompt(&request)
       .await
       .map_err(|e| anyhow::anyhow!("Failed to get routing decision: {:?}", e))?;
-
-    let decision = response.trim().to_string();
-    context.set("decision", decision.clone()).await;
-
-    Ok(TaskResult::new(Some(format!("路由决策: {}", decision)), NextAction::Continue))
+    context.set("decision", response.trim()).await;
+    Ok(TaskResult::new(Some(format!("路由决策: {:?}", decision)), NextAction::Continue))
   }
 }
 
@@ -278,7 +274,7 @@ impl Task for UnclearTask {
 }
 
 /// 决策类型枚举
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, strum::EnumString)]
 enum DecisionType {
   Booking, // 预订
   Info,    // 信息
@@ -291,13 +287,11 @@ struct RouteDecisionTask {
   info_task_id: String,
   unclear_task_id: String,
 }
-
 impl RouteDecisionTask {
   fn new(booking_task_id: String, info_task_id: String, unclear_task_id: String) -> Self {
     Self { booking_task_id, info_task_id, unclear_task_id }
   }
 }
-
 #[async_trait]
 impl Task for RouteDecisionTask {
   async fn run(&self, context: Context) -> graph_flow::Result<TaskResult> {
@@ -319,7 +313,6 @@ struct RouterWorkflow {
   session_storage: Arc<InMemorySessionStorage>,
   coordinator_task: Arc<CoordinatorRouterTask>,
 }
-
 impl RouterWorkflow {
   async fn new(system_prompt: &str) -> Result<Self> {
     // 创建任务实例

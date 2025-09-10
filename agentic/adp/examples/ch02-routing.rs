@@ -35,10 +35,10 @@ impl Task for CoordinatorRouterTask {
       .await
       .map_err(|e| anyhow::anyhow!("Failed to get routing decision: {:?}", e))?;
 
-    let decision = response.trim().to_string();
-    context.set("decision", decision.clone()).await;
+    let decision = response.trim();
+    context.set("decision", decision).await;
 
-    Ok(TaskResult::new(Some(format!("路由决策: {}", decision)), NextAction::Continue))
+    Ok(TaskResult::new(Some(format!("路由决策: {:?}", decision)), NextAction::Continue))
   }
 }
 
@@ -76,7 +76,7 @@ impl Task for UnclearTask {
 }
 
 /// 决策类型枚举
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, strum::EnumString)]
 enum DecisionType {
   Booking, // 预订
   Info,    // 信息
