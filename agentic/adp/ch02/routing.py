@@ -1,3 +1,4 @@
+from typing import Any
 from dotenv import load_dotenv
 
 from langchain_deepseek import ChatDeepSeek
@@ -10,20 +11,17 @@ load_dotenv()
 
 
 def booking_handler(request: str) -> str:
-  """Simulates the Booking Agent handling a request"""
-  print('\n--- DELEGATING TO BOOKING HANDLER ---')
+  print('\n--- 委托给预订处理器 ---')
   return f'预订处理器处理了请求："{request}"。结果：模拟预订操作。'
 
 
 def info_handler(request: str) -> str:
-  """Simulates the Info Agent handling a request"""
-  print('\n--- DELEGATING TO INFO HANDLER ---')
+  print('\n--- 委托给信息处理器 ---')
   return f'信息处理器处理了请求："{request}"。结果：模拟信息检索。'
 
 
 def unclear_handler(request: str) -> str:
-  """Handles requests that couldn't be delegated."""
-  print('\n--- HANDLING UNCLEAR REQUEST ---')
+  print('\n--- 处理模糊请求 ---')
   return f'协调器无法委托请求："{request}"。请澄清。'
 
 
@@ -52,20 +50,24 @@ def build(llm: BaseChatModel) -> RunnableSerializable:
     '模糊': RunnablePassthrough.assign(output=lambda x: unclear_handler(x['request']['request'])),
   }
 
+  # Define condition functions with proper type annotations
+  def is_booking_request(x: dict[str, Any]) -> bool:
+    return x['decision'].strip() == '预订'
+
+  def is_info_request(x: dict[str, Any]) -> bool:
+    return x['decision'].strip() == '信息'
+
   # Create the RunnableBranch. It takes the output of the router chain
   delegation_branch = RunnableBranch(
-    (lambda x: x['decision'].strip() == '预订', branches['预订']),
-    (lambda x: x['decision'].strip() == '信息', branches['信息']),
+    (is_booking_request, branches['预订']),
+    (is_info_request, branches['信息']),
     branches['模糊'],
   )
 
   # Combine the router chain and the delegation branch into a single runnable.
   # The router chain's output ('decision') is passed along with the original input ('request') to the delegation_branch
   coordinator_agent = (
-    {
-      'decision': coordinator_router_chain,
-      'request': RunnablePassthrough(),
-    }
+    {'decision': coordinator_router_chain, 'request': RunnablePassthrough()}
     | delegation_branch
     | (lambda x: x['output'])
   )
@@ -74,33 +76,27 @@ def build(llm: BaseChatModel) -> RunnableSerializable:
 
 
 def main():
-  """路由机制
-  - Routing enables agents to make dynamic decisions about the next step in a workflow based on conditions.
-  - It allows agents to handle diverse inputs and adapt their behavior, moving beyond linear execution.
-  - Routing logic can be implemented using LLMs, rule-based systems, or embedding similarity.
-  - Frameworks like LangGraph and Google ADK provide structured ways to define and manage routing within
-    agent workflows, albeit with different architectural approaches.
-  """
+  """路由机制"""
   llm = ChatDeepSeek(model='deepseek-chat', temperature=0)
 
   coordinator_agent = build(llm)
 
-  print('--- Running with a booking request ---')
+  print('--- 运行**预订**请求 ---')
   request_a = '预订一张到重庆的机票。'
   result_a = coordinator_agent.invoke({'request': request_a})
   print(f'最终结果 A: {result_a}')
 
-  print('\n--- Running with an info request ---')
-  request_b = '重庆的天气怎么样？'
+  print('\n--- 运行**信息**请求 ---')
+  request_b = '江苏的省会是哪个城市？'
   result_b = coordinator_agent.invoke({'request': request_b})
   print(f'最终结果 B: {result_b}')
 
-  print('\n--- Running with an unclear request ---')
+  print('\n--- 运行**模糊**请求 ---')
   request_c = '理讲物子量讲。'
   result_c = coordinator_agent.invoke({'request': request_c})
   print(f'最终结果 C: {result_c}')
 
 
-# uv run -m agentic.adp.02-routing
+# uv run -m agentic.adp.ch02.routing
 if __name__ == '__main__':
   main()

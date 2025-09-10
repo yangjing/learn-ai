@@ -9,7 +9,10 @@
     "checkpointer",
     "deepseek",
     "dotenv",
+    "dotenvy",
     "langchain",
+    "langgraph",
+    "println",
     "qwen",
     "siliconflow"
   ],
