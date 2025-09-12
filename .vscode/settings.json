@@ -6,6 +6,7 @@
   },
   "notebook.formatOnSave.enabled": true,
   "cSpell.words": [
+    "asyncio",
     "checkpointer",
     "deepseek",
     "dotenv",
